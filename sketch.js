@@ -53,7 +53,7 @@ function draw() {
   noStroke();
   textSize(32);
   textAlign(CENTER, CENTER);
-  text('413737080邱o晴', width / 2, height / 2);
+  text('413737080邱o晴', width / 2, height * 0.1);
 
   // Ensure at least one hand is detected
   if (hands.length > 0) {
