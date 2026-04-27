@@ -51,20 +51,44 @@ function draw() {
   if (hands.length > 0) {
     for (let hand of hands) {
       if (hand.confidence > 0.1) {
-        // Loop through keypoints and draw circles
-        for (let keypoint of hand.keypoints) {
-          // Color-code based on left or right hand
-          if (hand.handedness == "Left") {
-            fill(255, 0, 255);
-          } else {
-            fill(255, 255, 0);
-          }
-          noStroke();
+        // 先將所有關鍵點座標映射到縮放且置中後的畫布位置
+        let points = hand.keypoints.map(kp => ({
+          x: map(kp.x, 0, video.width, displayX, displayX + displayW),
+          y: map(kp.y, 0, video.height, displayY, displayY + displayH)
+        }));
 
-          // 將偵測到的座標映射到縮放且置中後的影像位置上
-          let x = map(keypoint.x, 0, video.width, displayX, displayX + displayW);
-          let y = map(keypoint.y, 0, video.height, displayY, displayY + displayH);
-          circle(x, y, 16);
+        // 根據左右手設定顏色
+        if (hand.handedness == "Left") {
+          fill(255, 0, 255);
+          stroke(255, 0, 255);
+        } else {
+          fill(255, 255, 0);
+          stroke(255, 255, 0);
+        }
+
+        // 定義要串連的關鍵點編號組
+        let fingerPaths = [
+          [0, 1, 2, 3, 4],     // 大拇指
+          [5, 6, 7, 8],        // 食指
+          [9, 10, 11, 12],     // 中指
+          [13, 14, 15, 16],    // 無名指
+          [17, 18, 19, 20]     // 小指
+        ];
+
+        // 繪製線條
+        strokeWeight(4);
+        for (let path of fingerPaths) {
+          for (let i = 0; i < path.length - 1; i++) {
+            let p1 = points[path[i]];
+            let p2 = points[path[i + 1]];
+            line(p1.x, p1.y, p2.x, p2.y);
+          }
+        }
+
+        // 繪製圓點
+        noStroke();
+        for (let p of points) {
+          circle(p.x, p.y, 16);
         }
       }
     }
